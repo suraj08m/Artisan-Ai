@@ -1342,7 +1342,35 @@ Create a complete, emotionally resonant product listing:
         price
       })
     });
+
+    if (!res.ok) {
+      throw new Error("API request failed");
+    }
+
     const data = await res.json();
+
+    console.log("API response:", data);
+
+    // Update UI
+    document.querySelector("#platform").textContent = data.platform;
+    document.querySelector("#price").textContent =
+      "₹" + Number(data.price).toLocaleString("en-IN");
+
+    document.querySelector("#profit").textContent =
+      "₹" + Number(data.profit).toLocaleString("en-IN");
+
+    document.querySelector("#demand").textContent = data.demand;
+    document.querySelector("#competition").textContent = data.competition;
+
+    document.querySelector("#marketFit").textContent =
+      data.market_fit + "%";
+
+    document.querySelector("#advice").textContent = data.advice;
+
+  } catch (err) {
+    console.error(err);
+    alert("⚠️ Could not reach API: " + err.message);
+  }
     content.innerHTML = `
     <div style="display:grid;gap:10px">
 
