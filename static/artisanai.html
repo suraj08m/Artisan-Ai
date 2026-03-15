@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ArtisanAI — Empower the Makers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --ink:       #0D0A14;
+  --deep:      #130F1E;
+  --surface:   #1B1528;
+  --panel:     #221C34;
+  --rim:       #2E2647;
+  --terra:     #C4593A;
+  --terra-lt:  #E07250;
+  --gold:      #D4A85A;
+  --gold-lt:   #F0C878;
+  --cream:     #F5EDD8;
+  --mist:      rgba(245,237,216,0.06);
+  --mist2:     rgba(245,237,216,0.12);
+  --mist3:     rgba(245,237,216,0.22);
+  --glow-t:    rgba(196,89,58,0.35);
+  --glow-g:    rgba(212,168,90,0.25);
+  --r:         14px;
+  --r-lg:      20px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ink);
+  color: var(--cream);
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ═══ CURSOR ═══════════════════════════════ */
+.cursor {
+  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+  width: 12px; height: 12px;
+  background: var(--terra);
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  transition: transform .12s ease, width .2s, height .2s, background .2s;
+  mix-blend-mode: screen;
+}
+.cursor-ring {
+  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998;
+  width: 38px; height: 38px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  transform: translate(-50%,-50%);
+  transition: transform .35s cubic-bezier(.23,1,.32,1), width .2s, height .2s;
+  opacity: .6;
+}
+body:hover .cursor { width: 14px; height: 14px; }
+
+/* ═══ NOISE OVERLAY ═══════════════════════ */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: .028;
+  pointer-events: none;
+}
+
+/* ═══ SCROLLBAR ═══════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--deep); }
+::-webkit-scrollbar-thumb { background: var(--terra); border-radius: 2px; }
+
+/* ═══ NAV ══════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.2rem 3rem;
+  backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(13,10,20,.7);
+  border-bottom: 1px solid var(--mist2);
+  transition: padding .3s;
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem; font-weight: 900;
+  color: var(--cream); letter-spacing: -.01em;
+  display: flex; align-items: center; gap: .55rem;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  background: var(--terra);
+  border-radius: 50%;
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { box-shadow: 0 0 0 0 var(--glow-t); }
+  50% { box-shadow: 0 0 0 8px transparent; }
+}
+.nav-links { display: flex; gap: 2.2rem; list-style: none; }
+.nav-links a {
+  color: rgba(245,237,216,.55);
+  text-decoration: none; font-size: .82rem;
+  font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--cream); }
+.nav-cta {
+  background: var(--terra);
+  color: var(--cream) !important;
+  padding: .45rem 1.2rem;
+  border-radius: 100px;
+  font-size: .8rem !important;
+  transition: background .2s, transform .15s !important;
+}
+.nav-cta:hover { background: var(--terra-lt) !important; transform: translateY(-1px); }
+
+/* ═══ HERO ═════════════════════════════════ */
+#hero {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center;
+  overflow: hidden; padding: 0 3rem;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 65% 50%, rgba(196,89,58,.18) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 30% 80%, rgba(212,168,90,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 80% at 10% 10%, rgba(100,60,140,.15) 0%, transparent 60%),
+    var(--ink);
+}
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(245,237,216,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245,237,216,.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+}
+.hero-orb {
+  position: absolute; border-radius: 50%; filter: blur(80px);
+  animation: float-orb 8s ease-in-out infinite alternate;
+  pointer-events: none; z-index: 0;
+}
+.orb-1 { width: 520px; height: 520px; background: var(--glow-t); top: -80px; right: -60px; animation-delay: 0s; }
+.orb-2 { width: 340px; height: 340px; background: var(--glow-g); bottom: 50px; right: 200px; animation-delay: -3s; }
+@keyframes float-orb {
+  0% { transform: translate(0,0) scale(1); }
+  100% { transform: translate(-30px, 40px) scale(1.08); }
+}
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 680px;
+  animation: hero-in .9s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: var(--mist2);
+  border: 1px solid rgba(212,168,90,.3);
+  color: var(--gold-lt);
+  font-size: .73rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: .35rem .9rem; border-radius: 100px;
+  margin-bottom: 1.6rem;
+  animation: hero-in .9s .1s cubic-bezier(.16,1,.3,1) both;
+}
+.hero-badge-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+.hero-h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3.2rem, 6vw, 5.5rem);
+  font-weight: 900; line-height: 1.02;
+  letter-spacing: -.03em;
+  color: var(--cream);
+  animation: hero-in .9s .18s cubic-bezier(.16,1,.3,1) both;
+}
+.hero-h1 em {
+  font-style: italic; color: var(--terra-lt);
+  background: linear-gradient(135deg, var(--terra) 0%, var(--gold) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-size: 1.05rem; font-weight: 300; line-height: 1.7;
+  color: rgba(245,237,216,.62);
+  max-width: 520px; margin-top: 1.4rem;
+  animation: hero-in .9s .26s cubic-bezier(.16,1,.3,1) both;
+}
+.hero-actions {
+  display: flex; gap: 1rem; margin-top: 2.4rem; flex-wrap: wrap;
+  animation: hero-in .9s .34s cubic-bezier(.16,1,.3,1) both;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: var(--terra);
+  color: var(--cream); border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem; font-weight: 500;
+  padding: .85rem 2rem; border-radius: 100px;
+  transition: all .25s cubic-bezier(.23,1,.32,1);
+  box-shadow: 0 0 30px var(--glow-t), 0 4px 16px rgba(0,0,0,.4);
+  position: relative; overflow: hidden; text-decoration: none;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.1) 50%, transparent 100%);
+  transform: translateX(-100%); transition: transform .4s ease;
+}
+.btn-primary:hover::after { transform: translateX(100%); }
+.btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 0 50px var(--glow-t), 0 8px 24px rgba(0,0,0,.5); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: .6rem;
+  background: transparent;
+  color: rgba(245,237,216,.7); border: 1px solid var(--mist3);
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  font-size: .88rem; font-weight: 400;
+  padding: .85rem 1.8rem; border-radius: 100px;
+  transition: all .2s; text-decoration: none;
+}
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold-lt); transform: translateY(-2px); }
+
+/* Floating craft cards */
+.hero-floats {
+  position: absolute; right: 6%; top: 50%;
+  transform: translateY(-50%);
+  z-index: 2; display: flex; flex-direction: column; gap: 1.1rem;
+  animation: hero-in .9s .45s cubic-bezier(.16,1,.3,1) both;
+}
+.float-card {
+  background: var(--panel);
+  border: 1px solid var(--rim);
+  border-radius: var(--r);
+  padding: 1rem 1.3rem;
+  min-width: 240px;
+  backdrop-filter: blur(12px);
+  transition: transform .3s ease, box-shadow .3s ease;
+  cursor: default;
+}
+.float-card:hover { transform: translateX(-8px); box-shadow: 0 8px 40px rgba(0,0,0,.4); }
+.float-card-label {
+  font-size: .67rem; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(245,237,216,.35); margin-bottom: .45rem;
+  font-weight: 500;
+}
+.float-card-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700; color: var(--cream);
+  margin-bottom: .35rem;
+}
+.float-card-tag {
+  display: inline-block; font-size: .68rem;
+  background: rgba(196,89,58,.2); color: var(--terra-lt);
+  border: 1px solid rgba(196,89,58,.3);
+  padding: .15rem .6rem; border-radius: 100px;
+}
+.float-card-tag.gold {
+  background: rgba(212,168,90,.15); color: var(--gold-lt);
+  border-color: rgba(212,168,90,.3);
+}
+
+/* Stats strip */
+.hero-stats {
+  position: absolute; bottom: 3rem; left: 3rem; right: 3rem; z-index: 2;
+  display: flex; gap: 3rem;
+  animation: hero-in .9s .55s cubic-bezier(.16,1,.3,1) both;
+}
+.stat-item {}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--cream) 0%, var(--gold-lt) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.stat-label {
+  font-size: .75rem; color: rgba(245,237,216,.4);
+  letter-spacing: .05em; margin-top: .1rem;
+}
+
+/* ═══ SECTION COMMONS ══════════════════════ */
+section { position: relative; z-index: 1; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 3rem; }
+.section-eye {
+  font-size: .72rem; font-weight: 500; letter-spacing: .15em;
+  text-transform: uppercase; color: var(--terra);
+  margin-bottom: .8rem;
+  display: flex; align-items: center; gap: .6rem;
+}
+.section-eye::before {
+  content: ''; display: block;
+  width: 28px; height: 1px; background: var(--terra);
+}
+.section-h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 900; line-height: 1.08; letter-spacing: -.02em;
+  color: var(--cream);
+}
+.section-sub {
+  font-size: .98rem; font-weight: 300; line-height: 1.7;
+  color: rgba(245,237,216,.5); margin-top: .9rem; max-width: 480px;
+}
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rim), transparent);
+  margin: 0 3rem;
+}
+
+/* ═══ FORM SECTION ═════════════════════════ */
+#generate {
+  padding: 8rem 0;
+  background: linear-gradient(180deg, var(--ink) 0%, var(--deep) 50%, var(--ink) 100%);
+}
+.form-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 5rem; align-items: start; }
+.form-left {}
+.form-right {}
+
+/* Steps indicator */
+.steps { display: flex; flex-direction: column; gap: .6rem; margin-top: 3rem; }
+.step {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1rem 1.2rem; border-radius: var(--r);
+  border: 1px solid transparent;
+  cursor: pointer; transition: all .2s;
+}
+.step.active {
+  background: var(--mist);
+  border-color: var(--rim);
+}
+.step-num {
+  width: 30px; height: 30px; min-width: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: .7rem; color: rgba(245,237,216,.4);
+  transition: all .2s;
+}
+.step.active .step-num {
+  background: var(--terra);
+  border-color: var(--terra);
+  color: var(--cream);
+}
+.step-text { flex: 1; }
+.step-title { font-size: .88rem; font-weight: 500; color: rgba(245,237,216,.6); }
+.step.active .step-title { color: var(--cream); }
+.step-desc { font-size: .75rem; color: rgba(245,237,216,.3); margin-top: .2rem; line-height: 1.5; }
+
+/* Form card */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,.5);
+}
+.form-card-header {
+  background: linear-gradient(135deg, var(--terra) 0%, #8B2F1E 100%);
+  padding: 1.6rem 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.form-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700; color: var(--cream);
+}
+.form-card-sub { font-size: .75rem; color: rgba(245,237,216,.65); margin-top: .15rem; }
+.form-badge {
+  background: rgba(255,255,255,.15);
+  color: rgba(245,237,216,.9);
+  font-size: .68rem; font-weight: 500; letter-spacing: .08em;
+  text-transform: uppercase; padding: .3rem .8rem; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,.2);
+}
+.form-body { padding: 2rem; display: flex; flex-direction: column; gap: 1.3rem; }
+
+/* Field styles */
+.field { display: flex; flex-direction: column; gap: .5rem; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+label {
+  font-size: .73rem; font-weight: 500; letter-spacing: .08em;
+  text-transform: uppercase; color: rgba(245,237,216,.45);
+}
+.input-wrap { position: relative; }
+.input-wrap .icon {
+  position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+  font-size: .95rem; opacity: .45; pointer-events: none;
+}
+input, textarea, select {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--rim);
+  color: var(--cream);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .88rem;
+  padding: .8rem 1rem .8rem 2.6rem;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+}
+input::placeholder, textarea::placeholder { color: rgba(245,237,216,.2); }
+input:focus, textarea:focus, select:focus {
+  border-color: var(--terra);
+  box-shadow: 0 0 0 3px rgba(196,89,58,.15);
+}
+textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+select { cursor: pointer; }
+select option { background: var(--panel); }
+.no-icon input, .no-icon textarea, .no-icon select {
+  padding-left: 1rem;
+}
+
+/* Tag selector */
+.tag-group { display: flex; flex-wrap: wrap; gap: .5rem; }
+.tag-opt {
+  padding: .4rem .9rem; border-radius: 100px; cursor: pointer;
+  font-size: .78rem; font-weight: 400;
+  background: var(--panel);
+  border: 1px solid var(--rim);
+  color: rgba(245,237,216,.5);
+  transition: all .18s; user-select: none;
+}
+.tag-opt.selected {
+  background: rgba(196,89,58,.2);
+  border-color: rgba(196,89,58,.5);
+  color: var(--terra-lt);
+}
+
+/* Submit */
+.btn-generate {
+  width: 100%;
+  background: linear-gradient(135deg, var(--terra) 0%, #9B3B22 100%);
+  color: var(--cream); border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; font-weight: 500;
+  padding: 1rem; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; gap: .7rem;
+  transition: all .25s; margin-top: .5rem;
+  box-shadow: 0 4px 20px rgba(196,89,58,.35);
+}
+.btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(196,89,58,.5); }
+.btn-generate:active { transform: translateY(0); }
+.btn-arrow { transition: transform .2s; }
+.btn-generate:hover .btn-arrow { transform: translateX(4px); }
+
+/* Progress loader */
+.progress-bar {
+  height: 2px;
+  background: var(--rim);
+  border-radius: 1px; overflow: hidden;
+  margin-top: .8rem;
+  display: none;
+}
+.progress-bar.active { display: block; }
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--terra), var(--gold));
+  border-radius: 1px;
+  animation: progress 2.5s ease-in-out infinite;
+}
+@keyframes progress {
+  0% { width: 0%; margin-left: 0; }
+  50% { width: 70%; margin-left: 15%; }
+  100% { width: 0%; margin-left: 100%; }
+}
+
+/* ═══ RESULT PANEL ═════════════════════════ */
+.result-panel {
+  margin-top: 1.5rem;
+  background: var(--panel);
+  border: 1px solid var(--rim);
+  border-radius: var(--r);
+  overflow: hidden;
+  display: none;
+}
+.result-panel.visible { display: block; }
+.result-panel-header {
+  padding: .9rem 1.3rem;
+  background: rgba(212,168,90,.1);
+  border-bottom: 1px solid var(--rim);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.result-panel-title { font-size: .78rem; font-weight: 500; color: var(--gold-lt); letter-spacing: .06em; }
+.result-copy {
+  font-size: .72rem; color: rgba(245,237,216,.4);
+  cursor: pointer; padding: .2rem .6rem;
+  border: 1px solid var(--rim); border-radius: 6px;
+  transition: color .15s, border-color .15s;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.result-copy:hover { color: var(--cream); border-color: var(--mist3); }
+.result-content {
+  padding: 1.4rem;
+  font-size: .84rem; line-height: 1.8; color: rgba(245,237,216,.72);
+  font-family: 'DM Mono', monospace;
+  white-space: pre-wrap; max-height: 320px; overflow-y: auto;
+}
+
+/* ═══ FEATURES GRID ════════════════════════ */
+#features {
+  padding: 8rem 0;
+}
+.features-intro { text-align: center; margin-bottom: 5rem; }
+.features-intro .section-eye { justify-content: center; }
+.features-intro .section-eye::before { display: none; }
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.feat-card {
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  transition: transform .3s cubic-bezier(.23,1,.32,1), box-shadow .3s, border-color .3s;
+  cursor: default;
+  position: relative; overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(196,89,58,.1) 0%, transparent 60%);
+  opacity: 0; transition: opacity .3s;
+}
+.feat-tag.soon {
+  color: var(--gold);
+  background: rgba(212,168,90,.12);
+  border-color: rgba(212,168,90,.35);
+}
+.feat-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,.4); border-color: rgba(196,89,58,.3); }
+.feat-card:hover::before { opacity: 1; }
+.feat-card.gold-card::before {
+  background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(212,168,90,.12) 0%, transparent 60%);
+}
+.feat-card.gold-card:hover { border-color: rgba(212,168,90,.3); }
+.feat-icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: rgba(196,89,58,.15);
+  border: 1px solid rgba(196,89,58,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; margin-bottom: 1.3rem;
+}
+.gold-card .feat-icon {
+  background: rgba(212,168,90,.12);
+  border-color: rgba(212,168,90,.25);
+}
+.feat-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700; color: var(--cream);
+  margin-bottom: .65rem; line-height: 1.3;
+}
+.feat-desc { font-size: .84rem; line-height: 1.7; color: rgba(245,237,216,.45); }
+.feat-card .feat-tag {
+  display: inline-block; margin-top: 1.2rem;
+  font-size: .67rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--terra); background: rgba(196,89,58,.12);
+  border: 1px solid rgba(196,89,58,.2);
+  padding: .2rem .65rem; border-radius: 100px;
+}
+.gold-card .feat-tag {
+  color: var(--gold); background: rgba(212,168,90,.1);
+  border-color: rgba(212,168,90,.25);
+}
+
+/* ═══ PROCESS FLOW ═════════════════════════ */
+#process {
+  padding: 8rem 0;
+  background: linear-gradient(180deg, var(--ink) 0%, var(--deep) 100%);
+}
+.process-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+.process-steps { display: flex; flex-direction: column; gap: 0; }
+.proc-step {
+  display: flex; gap: 1.5rem;
+  padding: 1.6rem 0;
+  border-bottom: 1px solid var(--rim);
+  cursor: default;
+  transition: background .2s;
+}
+.proc-step:last-child { border-bottom: none; }
+.proc-num {
+  font-family: 'DM Mono', monospace;
+  font-size: .7rem; color: var(--terra);
+  min-width: 28px; padding-top: .1rem;
+  letter-spacing: .05em;
+}
+.proc-body {}
+.proc-title { font-size: .95rem; font-weight: 500; color: var(--cream); margin-bottom: .4rem; }
+.proc-desc { font-size: .82rem; line-height: 1.65; color: rgba(245,237,216,.4); }
+.proc-visual {
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: var(--r-lg);
+  padding: 2.5rem;
+  position: relative; overflow: hidden;
+}
+.proc-visual-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 30% 70%, rgba(196,89,58,.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 70% 30%, rgba(212,168,90,.1) 0%, transparent 60%);
+  pointer-events: none;
+}
+.report-mock {
+  background: var(--panel);
+  border: 1px solid var(--rim);
+  border-radius: var(--r); padding: 1.5rem;
+  position: relative; z-index: 1;
+}
+.report-header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+.report-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; }
+.report-status {
+  font-size: .67rem; letter-spacing: .1em; text-transform: uppercase;
+  color: #5DCEA0; background: rgba(93,206,160,.12);
+  border: 1px solid rgba(93,206,160,.25);
+  padding: .2rem .65rem; border-radius: 100px;
+}
+.report-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .6rem 0; border-bottom: 1px solid var(--rim);
+  font-size: .8rem;
+}
+.report-row:last-child { border-bottom: none; }
+.report-key::before {
+  content: "• ";
+  color: var(--terra);
+}
+.report-val { color: var(--cream); font-weight: 500; }
+.report-val.green { color: #5DCEA0; }
+.report-val.amber { color: var(--gold-lt); }
+.bar-mini { height: 4px; background: var(--rim); border-radius: 2px; margin-top: 1rem; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--terra), var(--gold)); }
+
+/* ═══ DATASET PREVIEW ══════════════════════ */
+#dataset {
+  padding: 8rem 0;
+}
+.dataset-header-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 3rem; }
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  background: var(--panel);
+  padding: .85rem 1.2rem;
+  font-size: .68rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(245,237,216,.35);
+  text-align: left; white-space: nowrap;
+  border-bottom: 1px solid var(--rim);
+}
+.data-table td {
+  padding: .9rem 1.2rem;
+  font-size: .82rem; color: rgba(245,237,216,.7);
+  border-bottom: 1px solid rgba(46,38,71,.5);
+  transition: background .15s;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: var(--mist); }
+.demand-pill {
+  display: inline-block; font-size: .67rem; font-weight: 500;
+  letter-spacing: .07em; text-transform: uppercase;
+  padding: .2rem .65rem; border-radius: 100px;
+}
+.demand-pill.high { background: rgba(93,206,160,.15); color: #5DCEA0; border: 1px solid rgba(93,206,160,.25); }
+.demand-pill.medium { background: rgba(212,168,90,.12); color: var(--gold-lt); border: 1px solid rgba(212,168,90,.25); }
+.demand-pill.low { background: rgba(196,89,58,.12); color: var(--terra-lt); border: 1px solid rgba(196,89,58,.25); }
+
+/* ═══ TECH STACK ═══════════════════════════ */
+#tech {
+  padding: 6rem 0;
+  background: var(--deep);
+}
+.tech-grid { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 3rem; justify-content: center; }
+.tech-pill {
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--surface);
+  border: 1px solid var(--rim);
+  border-radius: 100px; padding: .65rem 1.3rem;
+  font-size: .82rem; color: rgba(245,237,216,.65);
+  transition: all .2s;
+}
+.tech-pill:hover {
+  border-color: var(--terra); color: var(--cream);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.tech-pill-icon { font-size: 1.05rem; }
+
+/* ═══ FOOTER ════════════════════════════════ */
+footer {
+  padding: 3rem;
+  border-top: 1px solid var(--rim);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--ink);
+}
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 900; color: var(--cream);
+}
+.footer-copy { font-size: .78rem; color: rgba(245,237,216,.25); }
+.footer-hackathon {
+  font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--terra); background: rgba(196,89,58,.1);
+  border: 1px solid rgba(196,89,58,.2);
+  padding: .3rem .9rem; border-radius: 100px;
+}
+
+/* ═══ ANIMATIONS ════════════════════════════ */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+.reveal-delay-4 { transition-delay: .4s; }
+.reveal-delay-5 { transition-delay: .5s; }
+
+/* ═══ RESPONSIVE ════════════════════════════ */
+@media (max-width: 1024px) {
+  .hero-floats { display: none; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-layout { grid-template-columns: 1fr; }
+  .process-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  #hero { padding: 0 1.5rem; }
+  .container { padding: 0 1.5rem; }
+  .features-grid { grid-template-columns: 1fr; }
+  .hero-stats { flex-wrap: wrap; gap: 1.5rem; }
+  footer { flex-direction: column; gap: 1rem; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-dot"></div>
+    ArtisanAI
+  </div>
+  <ul class="nav-links">
+    <li><a href="#generate">Generate</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#dataset">Dataset</a></li>
+    <li><a href="#generate" class="nav-cta">Try Now →</a></li>
+  </ul>
+</nav>
+
+<!-- ════════ HERO ════════ -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="orb-1 hero-orb"></div>
+  <div class="orb-2 hero-orb"></div>
+
+  <div class="hero-content" style="padding-top:6rem;">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Amazon Nova Ai Hackathon — Prototype Submission
+    </div>
+    <h1 class="hero-h1">
+      Crafts deserve<br/>
+      <em>better stories</em>
+    </h1>
+    <p class="hero-sub">
+      ArtisanAI blends AI storytelling with market intelligence — giving local artisans the tools to reach global buyers, price fairly, and sell smarter.
+    </p>
+    <div class="hero-actions">
+      <a href="#generate" class="btn-primary">
+        ✦ Generate Your Listing
+        <span class="btn-arrow">→</span>
+      </a>
+      <a href="#features" class="btn-ghost">Explore Features ↓</a>
+    </div>
+  </div>
+
+  <!-- Floating product cards -->
+  <div class="hero-floats">
+    <div class="float-card">
+      <div class="float-card-label">Trending Product</div>
+      <div class="float-card-val">Pashmina Shawl</div>
+      <span class="float-card-tag gold">High Demand · ₹180</span>
+    </div>
+    <div class="float-card">
+      <div class="float-card-label">AI Story Generated</div>
+      <div class="float-card-val">Blue Pottery Vase</div>
+      <span class="float-card-tag">Rajasthan · 320 sales/mo</span>
+    </div>
+    <div class="float-card">
+      <div class="float-card-label">Recommended Platform</div>
+      <div class="float-card-val">Etsy + Amazon Handmade</div>
+      <span class="float-card-tag gold">⭐ 4.8 Buyer Rating</span>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num">20+</div>
+      <div class="stat-label">Craft Categories</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">12</div>
+      <div class="stat-label">Regions Mapped</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3s</div>
+      <div class="stat-label">Avg Story Generated</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">Markets Reachable</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ GENERATE FORM ════════ -->
+<section id="generate">
+  <div class="container">
+    <div class="form-layout">
+
+      <!-- LEFT: Info + Steps -->
+      <div class="form-left reveal">
+        <div class="section-eye">AI-Powered Listing</div>
+        <h2 class="section-h2">Tell us about<br/>your craft</h2>
+        <p class="section-sub">Four inputs. One compelling story. Powered by Nova AI — trained to understand the soul of handcraft.</p>
+
+        <div class="steps" id="form-steps">
+          <div class="step active" data-step="1">
+            <div class="step-num">01</div>
+            <div class="step-text">
+              <div class="step-title">Product Name & Material</div>
+              <div class="step-desc">What is your product called and what is it made from?</div>
+            </div>
+          </div>
+          <div class="step" data-step="2">
+            <div class="step-num">02</div>
+            <div class="step-text">
+              <div class="step-title">Region of Origin</div>
+              <div class="step-desc">Where does this craft tradition come from?</div>
+            </div>
+          </div>
+          <div class="step" data-step="3">
+            <div class="step-num">03</div>
+            <div class="step-text">
+              <div class="step-title">Craft Process</div>
+              <div class="step-desc">Describe how the piece is made — the more detail, the better the story.</div>
+            </div>
+          </div>
+          <div class="step" data-step="4">
+            <div class="step-num">04</div>
+            <div class="step-text">
+              <div class="step-title">Generate & Export</div>
+              <div class="step-desc">AI crafts your full product listing, tags, and pricing note instantly.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Form Card -->
+      <div class="form-right reveal reveal-delay-2">
+        <div class="form-card">
+          <div class="form-card-header">
+            <div>
+              <div class="form-card-title">Product Listing Generator</div>
+              <div class="form-card-sub">Powered by Nova AI · Amazon-Bedrock</div>
+            </div>
+            <div class="form-badge">✦ AI Ready</div>
+          </div>
+
+          <div class="form-body">
+            <!-- Row 1: Product Name + Material -->
+            <div class="field-row">
+              <div class="field">
+                <label for="product-name">Product Name</label>
+                <div class="input-wrap">
+                  <span class="icon">📦</span>
+                  <input type="text" id="product-name" placeholder="e.g. Blue Pottery Vase" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="material">Material</label>
+                <div class="input-wrap">
+                  <span class="icon">🪵</span>
+                  <input type="text" id="material" placeholder="e.g. Clay, Silk, Bamboo" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Region -->
+            <div class="field">
+              <label for="region">Region / Origin</label>
+              <div class="input-wrap">
+                <span class="icon">📍</span>
+                <input type="text" id="region" placeholder="e.g. Rajasthan, India" />
+              </div>
+            </div>
+
+            <!-- Row 3: Craft Process -->
+            <div class="field">
+              <label for="craft-process">Craft Process</label>
+              <div class="input-wrap no-icon">
+                <textarea id="craft-process" rows="3" placeholder="e.g. Hand-thrown on a pottery wheel, then glazed with mineral cobalt blue dyes and kiln-fired at 1200°C for 8 hours…"></textarea>
+              </div>
+            </div>
+
+            <!-- Row 4: Tone tags -->
+            <div class="field">
+              <label>Listing Tone</label>
+              <div class="tag-group" id="tone-tags">
+                <div class="tag-opt selected" data-val="Warm & Storytelling">🪔 Heritage</div>
+                <div class="tag-opt" data-val="Luxury Craftsmanship">💎 Luxury</div>
+                <div class="tag-opt" data-val="Eco-conscious & Natural">🌿 Eco</div>
+                <div class="tag-opt" data-val="Vibrant & Playful">✨ Vibrant</div>
+              </div>
+            </div>
+
+            <!-- Row 5: Audience + Price -->
+            <div class="field-row">
+              <div class="field">
+                <label for="audience">Target Audience</label>
+                <div class="input-wrap no-icon">
+                  <select id="audience">
+                    <option>Global Buyers</option>
+                    <option>Luxury Shoppers</option>
+                    <option>Eco-conscious Buyers</option>
+                    <option>Home Décor Enthusiasts</option>
+                    <option>Fashion & Lifestyle</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="price">Your Price (INR)</label>
+                <div class="input-wrap">
+                  <span class="icon">₹</span>
+                  <input type="number" id="price" value="50" min="1" max="10000" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <button class="btn-generate" id="generate-btn" onclick="generateListing()">
+              <span>✦ Generate AI Listing</span>
+              <span class="btn-arrow">→</span>
+            </button>
+
+            <div class="progress-bar" id="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Result -->
+        <div class="result-panel" id="result-panel">
+          <div class="result-panel-header">
+            <div class="result-panel-title">✦ AI-Generated Listing</div>
+            <button class="result-copy" onclick="copyResult()">Copy</button>
+          </div>
+          <div class="result-content" id="result-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ FEATURES ════════ -->
+<section id="features">
+  <div class="container">
+    <div class="features-intro reveal">
+      <div class="section-eye">Platform Capabilities</div>
+      <h2 class="section-h2">Everything an artisan needs<br/>to go global</h2>
+      <p class="section-sub" style="margin: .9rem auto 0; text-align:center;">Six powerful modules, designed ground-up for artisan commerce.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feat-card reveal">
+        <div class="feat-icon">📖</div>
+        <div class="feat-title">AI Story & Product Page Generator</div>
+        <div class="feat-desc">Transform a few craft details into a captivating, SEO-ready product narrative that converts global buyers.</div>
+        <span class="feat-tag">Core Feature</span>
+      </div>
+      <div class="feat-card gold-card reveal reveal-delay-1">
+        <div class="feat-icon">📱</div>
+        <div class="feat-title">Social Media Kits</div>
+        <div class="feat-desc">Generate platform-ready captions, hashtag sets, and promotional copy for Instagram, Pinterest, and more.</div>
+        <span class="feat-tag soon">Coming Soon</span>
+      </div>
+      <div class="feat-card reveal reveal-delay-2">
+        <div class="feat-icon">📈</div>
+        <div class="feat-title">Ecommerce Demand Analysis</div>
+        <div class="feat-desc">Analyse real market data with Pandas to surface buyer trends, seasonal peaks, and underserved niches.</div>
+        <span class="feat-tag">Intelligence</span>
+      </div>
+      <div class="feat-card gold-card reveal reveal-delay-3">
+        <div class="feat-icon">💰</div>
+        <div class="feat-title">Pricing Recommendations</div>
+        <div class="feat-desc">AI-driven pricing suggestions calibrated to region, material, competitor data, and buyer willingness-to-pay.</div>
+        <span class="feat-tag">Revenue</span>
+      </div>
+      <div class="feat-card reveal reveal-delay-4">
+        <div class="feat-icon">📄</div>
+        <div class="feat-title">Exportable Reports</div>
+        <div class="feat-desc">Download comprehensive market kits — listings, insights, and platform recommendations in one shareable file.</div>
+        <span class="feat-tag soon">Coming Soon</span>
+      </div>
+      <div class="feat-card gold-card reveal reveal-delay-5">
+        <div class="feat-icon">🌍</div>
+        <div class="feat-title">Multilingual Support</div>
+        <div class="feat-desc">Generate listings in English, Hindi, French, Spanish, and Arabic — breaking language barriers for global reach.</div>
+        <span class="feat-tag soon">Coming Soon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ PROCESS ════════ -->
+<section id="process">
+  <div class="container">
+    <div class="process-layout">
+      <div class="reveal">
+        <div class="section-eye">How It Works</div>
+        <h2 class="section-h2">From craft detail<br/>to market-ready kit</h2>
+        <p class="section-sub">Five steps. Fully automated. One comprehensive artisan report.</p>
+
+        <div class="process-steps" style="margin-top:2.5rem;">
+          <div class="proc-step">
+            <div class="proc-num">01</div>
+            <div class="proc-body">
+              <div class="proc-title">Artisan Inputs</div>
+              <div class="proc-desc">Artisan fills in product name, material, region, and craft process in seconds.</div>
+            </div>
+          </div>
+          <div class="proc-step">
+            <div class="proc-num">02</div>
+            <div class="proc-body">
+              <div class="proc-title">AI Storytelling + Listing</div>
+              <div class="proc-desc">Nova generates an emotionally resonant product story, title, tags, and full listing copy.</div>
+            </div>
+          </div>
+          <div class="proc-step">
+            <div class="proc-num">03</div>
+            <div class="proc-body">
+              <div class="proc-title">Buyer Data Analysis</div>
+              <div class="proc-desc">Pandas analyses the artisan dataset to identify demand, buyer ratings, and top-selling regions.</div>
+            </div>
+          </div>
+          <div class="proc-step">
+            <div class="proc-num">04</div>
+            <div class="proc-body">
+              <div class="proc-title">Pricing & Market Recommendations</div>
+              <div class="proc-desc">AI suggests optimal pricing and recommends the best platforms (Etsy, Amazon Handmade, Novica).</div>
+            </div>
+          </div>
+          <div class="proc-step">
+            <div class="proc-num">05</div>
+            <div class="proc-body">
+              <div class="proc-title">Artisan Report Exported</div>
+              <div class="proc-desc">A complete kit — listing, social copy, pricing, and market insights — delivered in one download.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mock report card -->
+      <div class="proc-visual reveal reveal-delay-2">
+        <div class="proc-visual-bg"></div>
+        <div class="report-mock">
+          <div class="report-header-row">
+            <div class="report-title">ArtisanAI Report</div>
+            <div class="report-status">✓ Ready</div>
+          </div>
+          <div class="report-row">
+            <span class="report-key">Product</span>
+            <span class="report-val">Kantha Quilt · West Bengal</span>
+          </div>
+          <div class="report-row">
+            <span class="report-key">AI Title</span>
+            <span class="report-val">"The Layered Heritage Quilt"</span>
+          </div>
+          <div class="report-row">
+            <span class="report-key">Suggested Price</span>
+            <span class="report-val green">₹120 – ₹145 USD</span>
+          </div>
+          <div class="report-row">
+            <span class="report-key">Market Demand</span>
+            <span class="report-val green">● High</span>
+          </div>
+          <div class="report-row">
+            <span class="report-key">Best Platforms</span>
+            <span class="report-val amber">Etsy · Amazon Handmade</span>
+          </div>
+          <div class="report-row">
+            <span class="report-key">Est. Monthly Sales</span>
+            <span class="report-val">~175 units</span>
+          </div>
+          <div class="report-row">
+            <span class="report-key">Buyer Rating</span>
+            <span class="report-val green">⭐ 4.8 / 5.0</span>
+          </div>
+          <div class="bar-mini" style="margin-top:1.2rem;">
+            <div class="bar-fill" style="width:82%;"></div>
+          </div>
+          <div style="font-size:.68rem;color:rgba(245,237,216,.3);margin-top:.4rem;">Market Fit Score · 82%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ DATASET PREVIEW ════════ -->
+<section id="dataset">
+  <div class="container">
+    <div class="dataset-header-row reveal">
+      <div>
+        <div class="section-eye">Sample Dataset</div>
+        <h2 class="section-h2">6000+ artisan products analyzed</h2>
+      </div>
+      <a href="artisan_dataset.csv" download class="btn-ghost" style="height:fit-content;">⬇ Download CSV</a>
+    </div>
+
+    <div class="table-wrap reveal reveal-delay-1">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Material</th>
+            <th>Region</th>
+            <th>Price</th>
+            <th>Demand</th>
+            <th>Rating</th>
+            <th>Est. Sales / mo</th>
+          </tr>
+        </thead>
+        <tbody id="dataset-body"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ════════ TECH STACK ════════ -->
+<section id="tech">
+  <div class="container">
+    <div class="features-intro reveal" style="margin-bottom:0;">
+      <div class="section-eye" style="justify-content:center;">Built With</div>
+      <h2 class="section-h2">Modern stack.<br/>Production-ready.</h2>
+    </div>
+    <div class="tech-grid reveal reveal-delay-1">
+      <div class="tech-pill"><span class="tech-pill-icon">🐍</span> Python</div>
+      <div class="tech-pill"><span class="tech-pill-icon">⚡</span> Flask API</div>
+      <div class="tech-pill"><span class="tech-pill-icon">🤖</span> Amazon Nova (AWS Bedrock)</div>
+      <div class="tech-pill"><span class="tech-pill-icon">🐼</span> Pandas</div>
+      <div class="tech-pill"><span class="tech-pill-icon">🚀</span> Vercel</div>
+      <div class="tech-pill"><span class="tech-pill-icon">☁️</span> AWS Bedrock</div>
+      <div class="tech-pill"><span class="tech-pill-icon">🌐</span> Html + JavaScript</div>
+      <div class="tech-pill"><span class="tech-pill-icon">📊</span> Market Datasets</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer>
+  <div class="footer-logo">🪔 ArtisanAI</div>
+  <div class="footer-copy">Storytelling + Market Intelligence · Empowering artisans to sell smarter</div>
+  <div class="footer-hackathon">Amazon Nova Ai Hackathon</div>
+</footer>
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
+<script>
+/* ── Custom cursor ────────────────────── */
+const cursor = document.getElementById('cursor');
+const ring   = document.getElementById('cursor-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+(function animRing() {
+  rx += (mx - rx) * .15; ry += (my - ry) * .15;
+  ring.style.left = rx+'px'; ring.style.top = ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button,.tag-opt,.float-card,.feat-card,.tech-pill').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width='22px'; cursor.style.height='22px'; ring.style.width='60px'; ring.style.height='60px'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width='12px'; cursor.style.height='12px'; ring.style.width='38px'; ring.style.height='38px'; });
+});
+
+/* ── Reveal on scroll ─────────────────── */
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+/* ── Tone tag selector ────────────────── */
+document.querySelectorAll('.tag-opt').forEach(tag => {
+  tag.addEventListener('click', () => {
+    document.querySelectorAll('.tag-opt').forEach(t => t.classList.remove('selected'));
+    tag.classList.add('selected');
+  });
+});
+
+/* ── Step highlighting on focus ──────── */
+const stepMap = {
+  'product-name': 1, 'material': 1,
+  'region': 2, 'craft-process': 3,
+  'audience': 4, 'price': 4
+};
+Object.entries(stepMap).forEach(([id, step]) => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('focus', () => {
+    document.querySelectorAll('.step').forEach(s => {
+      s.classList.toggle('active', parseInt(s.dataset.step) === step);
+    });
+  });
+});
+
+/* ── Dataset table ────────────────────── */
+const DATA = [
+  ['Blue Pottery Vase','Clay','Rajasthan, India','₹450','high','4.7','320'],
+  ['Pashmina Shawl','Cashmere Wool','Kashmir, India','₹1800','high','4.9','210'],
+  ['Warli Tribal Wall Art','Acrylic on Canvas','Maharashtra, India','₹600','medium','4.5','95'],
+  ['Kantha Quilt','Recycled Cotton Sarees','West Bengal, India','₹1200','high','4.8','175'],
+  ['Dhokra Brass Figurine','Brass','Chhattisgarh, India','₹350','medium','4.6','140'],
+  ['Madhubani Painting','Natural Pigments','Bihar, India','₹800','medium','4.7','88'],
+  ['Bamboo Lampshade','Bamboo','Assam, India','₹550','medium','4.4','112'],
+  ['Jamdani Saree','Fine Muslin','Dhaka, Bangladesh','₹3500','medium','4.9','42'],
+];
+const tbody = document.getElementById('dataset-body');
+DATA.forEach(row => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><strong style="color:var(--cream)">${row[0]}</strong></td>
+    <td>${row[1]}</td>
+    <td>${row[2]}</td>
+    <td style="color:var(--gold-lt);font-weight:500">${row[3]}</td>
+    <td><span class="demand-pill ${row[4]}">${row[4]}</span></td>
+    <td>⭐ ${row[5]}</td>
+    <td>${row[6]}</td>
+  `;
+  tbody.appendChild(tr);
+});
+
+/* ── Generate listing (Nova API) ───── */
+async function generateListing() {
+  const product   = document.getElementById('product-name').value.trim();
+  const material  = document.getElementById('material').value.trim();
+  const region    = document.getElementById('region').value.trim();
+  const process   = document.getElementById('craft-process').value.trim();
+  const audience  = document.getElementById('audience').value;
+  const price     = document.getElementById('price').value;
+  const toneEl    = document.querySelector('.tag-opt.selected');
+  const tone      = toneEl ? toneEl.dataset.val : 'Warm & Storytelling';
+
+  if (!product || !material || !region || !process) {
+    shakeForm(); return;
+  }
+
+  const btn  = document.getElementById('generate-btn');
+  const prog = document.getElementById('progress-bar');
+  const panel = document.getElementById('result-panel');
+  const content = document.getElementById('result-content');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span>✦ Crafting your story…</span>';
+  prog.classList.add('active');
+  panel.classList.remove('visible');
+
+  const prompt = `You are ArtisanAI, an expert copywriter specialising in handcrafted artisan goods with deep cultural knowledge.
+
+Product Name: ${product}
+Material: ${material}
+Region/Origin: ${region}
+Craft Process: ${process}
+Target Audience: ${audience}
+Tone: ${tone}
+Price: $${price}
+
+Create a complete, emotionally resonant product listing:
+
+**PRODUCT TITLE** (SEO-optimised, under 80 chars)
+
+**SHORT DESCRIPTION** (2–3 punchy sentences for a product card)
+
+**FULL STORY** (160–200 words — weave in cultural heritage, the maker's hands, the process, and what makes this irreplaceable)
+
+**KEY FEATURES** (5 bullet points, concise)
+
+**SUGGESTED TAGS** (10 comma-separated, marketplace-ready)
+
+**PRICING NOTE** (1 confident sentence justifying $x${price})`;
+
+  try {
+    const res = await fetch('http://127.0.0.1:5000/analyze', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        product,
+        material,
+        region,
+        process,
+        audience,
+        tone,
+        price
+      })
+    });
+    const data = await res.json();
+    content.innerHTML = `
+    <div style="display:grid;gap:10px">
+
+    <div class="report-row">
+    <span class="report-key">Best Platform</span>
+    <span class="report-val">${data.platform}</span>
+    </div>
+
+    <div class="report-row">
+    <span class="report-key">Suggested Price</span>
+    <span class="report-val">₹${Number(data.price).toLocaleString("en-In")}</span>
+    </div>
+
+    <div class="report-row">
+    <span class="report-key">Estimated Profit</span>
+    <span class="report-val">₹${data.profit}</span>
+    </div>
+
+    <div class="report-row">
+    <span class="report-key">Demand</span>
+    <span class="report-val green">${data.demand}</span>
+    </div>
+
+    <div class="report-row">
+    <span class="report-key">Competition</span>
+    <span class="report-val amber">${data.competition}</span>
+    </div>
+
+    <div class="report-row">
+    <span class="report-key">Market Fit Score</span>
+    <span class="report-val green">${data.market_fit}%</span>
+    </div>
+
+    <div class="bar-mini">
+    <div class="bar-fill" style="width:${data.market_fit}%"></div>
+    </div>
+
+    <div style="margin-top:12px">
+    <strong>AI Advice</strong><br>
+    ${data.advice}
+    </div>
+
+    </div>
+    `;
+    panel.classList.add('visible');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Mark step 4 active
+    document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', s.dataset.step === '4'));
+  } catch(err) {
+    content.textContent = '⚠️ Could not reach API: ' + err.message;
+    panel.classList.add('visible');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>✦ Generate AI Listing</span><span class="btn-arrow">→</span>';
+  prog.classList.remove('active');
+}
+
+function shakeForm() {
+  const card = document.querySelector('.form-card');
+  card.style.animation = 'none';
+  card.style.transform = 'translateX(6px)';
+  setTimeout(() => { card.style.transform = 'translateX(-6px)'; }, 80);
+  setTimeout(() => { card.style.transform = 'translateX(4px)'; }, 160);
+  setTimeout(() => { card.style.transform = 'translateX(0)'; }, 240);
+}
+
+function copyResult() {
+  const text = document.getElementById('result-content').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.result-copy');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1800);
+  });
+}
+
+/* ── Keyboard shortcut Cmd+Enter ─────── */
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generateListing();
+});
+</script>
+</body>
+</html>
