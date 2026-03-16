@@ -29,23 +29,37 @@ def analyze():
         market = analyze_market(product)
 
         # AI advice
-        advice = generate_advice(
-            product,
-            region,
-            material,
-            market["best_platform"],
-            market["suggested_price"],
-            market["demand"],
-            market["competition"]
-        )
+        try:
+            advice = generate_advice(
+                product,
+                region,
+                material,
+                market["best_platform"],
+                market["suggested_price"],
+                market["demand"],
+                market["competition"]
+            )
+        except Exception as e:
+            print("Nova error:", e)
+
+            advice = f"""
+        This handcrafted {product} from {region} reflects the rich tradition of artisans working with {material}.
+        Each piece is carefully crafted using traditional methods, making it unique and culturally meaningful.
+
+        Best platform: {market['best_platform']}
+        Recommended price: ₹{market['suggested_price']}
+        Demand level: {market['demand']}
+
+        This product has strong potential in global handmade marketplaces.
+        """
 
         return jsonify({
-            "platform": market["best_platform"],
-            "price": market["suggested_price"],
-            "profit": market["estimated_profit"],
-            "demand": market["demand"],
-            "competition": market["competition"],
-            "market_fit": market["market_fit"],
+            "platform": market.get("best_platform"),
+            "price": market.get("suggested_price"),
+            "profit": market.get("estimated_profit"),
+            "demand": market.get("demand"),
+            "competition": market.get("competition"),
+            "market_fit": market.get("market_fit", 70),
             "advice": advice
         })
 
