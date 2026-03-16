@@ -1285,48 +1285,15 @@ async function generateListing() {
   const process   = document.getElementById('craft-process').value.trim();
   const audience  = document.getElementById('audience').value;
   const price     = document.getElementById('price').value;
-  const toneEl    = document.querySelector('.tag-opt.selected');
-  const tone      = toneEl ? toneEl.dataset.val : 'Warm & Storytelling';
 
-  if (!product || !material || !region || !process) {
-    shakeForm(); return;
-  }
+  const toneEl = document.querySelector('.tag-opt.selected');
+  const tone   = toneEl ? toneEl.dataset.val : 'Warm & Storytelling';
 
-  const btn  = document.getElementById('generate-btn');
-  const prog = document.getElementById('progress-bar');
-  const panel = document.getElementById('result-panel');
-  const content = document.getElementById('result-content');
-
-  btn.disabled = true;
-  btn.innerHTML = '<span>✦ Crafting your story…</span>';
-  prog.classList.add('active');
-  panel.classList.remove('visible');
-
-  const prompt = `You are ArtisanAI, an expert copywriter specialising in handcrafted artisan goods with deep cultural knowledge.
-
-Product Name: ${product}
-Material: ${material}
-Region/Origin: ${region}
-Craft Process: ${process}
-Target Audience: ${audience}
-Tone: ${tone}
-Price: $${price}
-
-Create a complete, emotionally resonant product listing:
-
-**PRODUCT TITLE** (SEO-optimised, under 80 chars)
-
-**SHORT DESCRIPTION** (2–3 punchy sentences for a product card)
-
-**FULL STORY** (160–200 words — weave in cultural heritage, the maker's hands, the process, and what makes this irreplaceable)
-
-**KEY FEATURES** (5 bullet points, concise)
-
-**SUGGESTED TAGS** (10 comma-separated, marketplace-ready)
-
-**PRICING NOTE** (1 confident sentence justifying $x${price})`;
+  const panel = document.getElementById("result-panel");
+  const content = document.getElementById("result-content");
 
   try {
+
     const res = await fetch("/analyze", {
       method: "POST",
       headers: {
@@ -1351,83 +1318,65 @@ Create a complete, emotionally resonant product listing:
 
     console.log("API response:", data);
 
-    // Update UI
-    document.querySelector("#platform").textContent = data.platform;
-    document.querySelector("#price").textContent =
-      "₹" + Number(data.price).toLocaleString("en-IN");
-
-    document.querySelector("#profit").textContent =
-      "₹" + Number(data.profit).toLocaleString("en-IN");
-
-    document.querySelector("#demand").textContent = data.demand;
-    document.querySelector("#competition").textContent = data.competition;
-
-    document.querySelector("#marketFit").textContent =
-      data.market_fit + "%";
-
-    document.querySelector("#advice").textContent = data.advice;
-
-  } catch (err) {
-    console.error(err);
-    alert("⚠️ Could not reach API: " + err.message);
-  }
     content.innerHTML = `
     <div style="display:grid;gap:10px">
 
-    <div class="report-row">
-    <span class="report-key">Best Platform</span>
-    <span class="report-val">${data.platform}</span>
-    </div>
+      <div class="report-row">
+        <span class="report-key">Best Platform</span>
+        <span class="report-val">${data.platform}</span>
+      </div>
 
-    <div class="report-row">
-    <span class="report-key">Suggested Price</span>
-    <span class="report-val">₹${Number(data.price).toLocaleString("en-In")}</span>
-    </div>
+      <div class="report-row">
+        <span class="report-key">Suggested Price</span>
+        <span class="report-val">₹${Number(data.price).toLocaleString("en-IN")}</span>
+      </div>
 
-    <div class="report-row">
-    <span class="report-key">Estimated Profit</span>
-    <span class="report-val">₹${data.profit}</span>
-    </div>
+      <div class="report-row">
+        <span class="report-key">Estimated Profit</span>
+        <span class="report-val">₹${data.profit}</span>
+      </div>
 
-    <div class="report-row">
-    <span class="report-key">Demand</span>
-    <span class="report-val green">${data.demand}</span>
-    </div>
+      <div class="report-row">
+        <span class="report-key">Demand</span>
+        <span class="report-val green">${data.demand}</span>
+      </div>
 
-    <div class="report-row">
-    <span class="report-key">Competition</span>
-    <span class="report-val amber">${data.competition}</span>
-    </div>
+      <div class="report-row">
+        <span class="report-key">Competition</span>
+        <span class="report-val amber">${data.competition}</span>
+      </div>
 
-    <div class="report-row">
-    <span class="report-key">Market Fit Score</span>
-    <span class="report-val green">${data.market_fit}%</span>
-    </div>
+      <div class="report-row">
+        <span class="report-key">Market Fit Score</span>
+        <span class="report-val green">${data.market_fit}%</span>
+      </div>
 
-    <div class="bar-mini">
-    <div class="bar-fill" style="width:${data.market_fit}%"></div>
-    </div>
+      <div class="bar-mini">
+        <div class="bar-fill" style="width:${data.market_fit}%"></div>
+      </div>
 
-    <div style="margin-top:12px">
-    <strong>AI Advice</strong><br>
-    ${data.advice}
-    </div>
+      <div style="margin-top:12px">
+        <strong>AI Advice</strong><br>
+        ${data.advice}
+      </div>
 
     </div>
     `;
-    panel.classList.add('visible');
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    // Mark step 4 active
-    document.querySelectorAll('.step').forEach(s => s.classList.toggle('active', s.dataset.step === '4'));
-  } catch(err) {
-    content.textContent = '⚠️ Could not reach API: ' + err.message;
-    panel.classList.add('visible');
-  }
 
-  btn.disabled = false;
-  btn.innerHTML = '<span>✦ Generate AI Listing</span><span class="btn-arrow">→</span>';
-  prog.classList.remove('active');
+    panel.classList.add("visible");
+
+  } catch (err) {
+
+    console.error(err);
+
+    content.textContent =
+      "⚠️ Could not reach API: " + err.message;
+
+    panel.classList.add("visible");
+  }
 }
+
+  
 
 function shakeForm() {
   const card = document.querySelector('.form-card');
